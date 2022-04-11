@@ -6,7 +6,8 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-func ToDecimal(ivalue interface{}, decimals int) decimal.Decimal {
+func ToDecimal(ivalue interface{}) decimal.Decimal {
+	decimals := 18
 	value := new(big.Int)
 	switch v := ivalue.(type) {
 	case string:
@@ -22,7 +23,8 @@ func ToDecimal(ivalue interface{}, decimals int) decimal.Decimal {
 	return result
 }
 
-func ToWei(iamount interface{}, decimals int) *big.Int {
+func ToWei(iamount interface{}) *big.Int {
+	decimals := 18
 	amount := decimal.NewFromFloat(0)
 	switch v := iamount.(type) {
 	case string:

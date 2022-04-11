@@ -1,18 +1,13 @@
 package main
 
 import (
-	"encoding/hex"
 	"fmt"
 	"math/big"
 	"os"
-	"sort"
-	"strings"
 
-	"github.com/c-ollins/simple-arbitrage-go/erc20"
 	"github.com/c-ollins/simple-arbitrage-go/flashbundle"
 	"github.com/c-ollins/simple-arbitrage-go/market"
 	"github.com/c-ollins/simple-arbitrage-go/swaprouter"
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -23,6 +18,8 @@ var (
 	TraderJoeRouter = common.HexToAddress("0x60aE616a2155Ee3d9A68541Ba4544862310933d4")
 	PangolinRouter  = common.HexToAddress("0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106")
 	WAVAX           = common.HexToAddress("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7")
+
+	BundleAddress = common.HexToAddress("0xbf3Bf019D4Abc6D3B813795e9a3e3FB2A3f4E19e")
 
 	PrivateKey, _ = crypto.HexToECDSA(os.Getenv("MEV_PRIVATE"))
 )
@@ -68,7 +65,7 @@ func newArbBot() (*arbBot, error) {
 		return nil, err
 	}
 
-	bundleExecutor, err := flashbundle.NewFlashbundle(common.HexToAddress("0xEFafbFC7585972E57A3EA723180e6DE8843B77D6"), client)
+	bundleExecutor, err := flashbundle.NewFlashbundle(BundleAddress, client)
 	if err != nil {
 		return nil, err
 	}
@@ -147,98 +144,5 @@ func (arb *arbBot) beginArbitrage() {
 	if err != nil {
 		fmt.Println(err)
 		return
-	}
-
-	if true {
-		return
-	}
-
-	crossedMarkets := make([]*market.CrossedMarket, 0)
-
-	for _, token := range tokens {
-		tjBuyPrice := tj.GetTokensIn(token, WAVAX, ToWei(int64(23), 18))
-		tjSellPrice := tj.GetTokensOut(WAVAX, token, ToWei(int64(23), 18))
-
-		pngBuyPrice := png.GetTokensIn(token, WAVAX, ToWei(int64(23), 18))
-		pngSellPrice := png.GetTokensOut(WAVAX, token, ToWei(int64(23), 18))
-
-		if pngSellPrice.Cmp(tjBuyPrice) == 1 {
-			cm := &market.CrossedMarket{
-				Token:      token,
-				BuyMarket:  tj,
-				SellMarket: png,
-				BuyPrice:   tjBuyPrice,
-				SellPrice:  pngSellPrice,
-			}
-
-			crossedMarkets = append(crossedMarkets, cm)
-
-			fmt.Printf("Buy %s in joe @ %s and sell in png @ %s\n", token, ToDecimal(tjBuyPrice, 18), ToDecimal(pngSellPrice, 18))
-		} else if tjSellPrice.Cmp(pngBuyPrice) == 1 {
-
-			cm := &market.CrossedMarket{
-				Token:      token,
-				BuyMarket:  png,
-				SellMarket: tj,
-				BuyPrice:   pngBuyPrice,
-				SellPrice:  tjSellPrice,
-			}
-
-			crossedMarkets = append(crossedMarkets, cm)
-
-			fmt.Printf("Buy %s in png @ %s and sell in joe @ %s\n", token, ToDecimal(tjBuyPrice, 18), ToDecimal(pngSellPrice, 18))
-		} else {
-			// fmt.Printf("No arb possible joe buy price: %s, png sell price: %s\n", ToDecimal(tjBuyPrice, 18), ToDecimal(pngSellPrice, 18))
-		}
-	}
-
-	fmt.Printf("Found %d crossed markets\n", len(crossedMarkets))
-
-	sort.Slice(crossedMarkets, func(i, j int) bool {
-		return crossedMarkets[i].TradeProfit(big.NewInt(0)).Cmp(crossedMarkets[j].TradeProfit(big.NewInt(0))) == -1
-	})
-
-	if true {
-		return
-	}
-
-	// arb.bundleExecutor.Call()
-
-	contractAbi, _ := abi.JSON(strings.NewReader(erc20.Erc20ABI))
-
-	// 0x00000b2cB99c3ed0f5c937DB59cA67792D3f0E13
-	approvalBytes, err := contractAbi.Pack("transferFrom",
-		common.HexToAddress("0xEFafbFC7585972E57A3EA723180e6DE8843B77D6"),
-		common.HexToAddress("0xC9815229348D95572b34006d0F3d1F3Ec8516bD7"),
-		big.NewInt(10000000000000000))
-	if err != nil {
-		fmt.Println("error getting transferbytes:", err)
-		return
-	}
-
-	fmt.Println("Approval abi:", hex.EncodeToString(approvalBytes))
-	auth, err := arb.txAuth()
-	if err != nil {
-		fmt.Println("error getting tx auth:", err)
-		return
-	}
-	tx, err := arb.bundleExecutor.Call(auth, common.HexToAddress("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"), &big.Int{}, approvalBytes)
-	if err != nil {
-		fmt.Println("error sending call tx:", err)
-		return
-	}
-
-	fmt.Println(tx)
-
-	addy, err := arb.bundleExecutor.GetPairsByIndexRange(&bind.CallOpts{}, common.HexToAddress("0x9Ad6C38BE94206cA50bb0d90783181662f0Cfa10"), big.NewInt(2), big.NewInt(5))
-	if err != nil {
-		fmt.Println("error getting pairs:", err)
-		return
-	}
-
-	fmt.Println("addy")
-	// fmt.Println(addy)
-	for _, add := range addy {
-		fmt.Println(add)
 	}
 }

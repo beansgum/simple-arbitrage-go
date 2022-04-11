@@ -30,7 +30,7 @@ var (
 
 // FlashbundleMetaData contains all meta data concerning the Flashbundle contract.
 var FlashbundleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_executor\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"addresspayable\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"call\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractUniswapV2Factory\",\"name\":\"_uniswapFactory\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_stop\",\"type\":\"uint256\"}],\"name\":\"getPairsByIndexRange\",\"outputs\":[{\"internalType\":\"address[3][]\",\"name\":\"\",\"type\":\"address[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIUniswapV2Pair[]\",\"name\":\"_pairs\",\"type\":\"address[]\"}],\"name\":\"getReservesByPairs\",\"outputs\":[{\"internalType\":\"uint256[3][]\",\"name\":\"\",\"type\":\"uint256[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_wethAmountToFirstMarket\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_ethAmountToCoinbase\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"_targets\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"_payloads\",\"type\":\"bytes[]\"}],\"name\":\"uniswapWeth\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_executor\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"addresspayable\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"call\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractUniswapV2Factory\",\"name\":\"_uniswapFactory\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_stop\",\"type\":\"uint256\"}],\"name\":\"getPairsByIndexRange\",\"outputs\":[{\"internalType\":\"address[3][]\",\"name\":\"\",\"type\":\"address[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIUniswapV2Pair[]\",\"name\":\"_pairs\",\"type\":\"address[]\"}],\"name\":\"getReservesByPairs\",\"outputs\":[{\"internalType\":\"uint256[3][]\",\"name\":\"\",\"type\":\"uint256[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_wethAmountToFirstMarket\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"_targets\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"_payloads\",\"type\":\"bytes[]\"}],\"name\":\"uniswapLoss\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_wethAmountToFirstMarket\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"_targets\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"_payloads\",\"type\":\"bytes[]\"}],\"name\":\"uniswapWeth\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
 }
 
 // FlashbundleABI is the input ABI used to generate the binding from.
@@ -262,25 +262,46 @@ func (_Flashbundle *FlashbundleTransactorSession) Call(_to common.Address, _valu
 	return _Flashbundle.Contract.Call(&_Flashbundle.TransactOpts, _to, _value, _data)
 }
 
-// UniswapWeth is a paid mutator transaction binding the contract method 0xecd494b3.
+// UniswapLoss is a paid mutator transaction binding the contract method 0x0b86ebe2.
 //
-// Solidity: function uniswapWeth(uint256 _wethAmountToFirstMarket, uint256 _ethAmountToCoinbase, address[] _targets, bytes[] _payloads) payable returns()
-func (_Flashbundle *FlashbundleTransactor) UniswapWeth(opts *bind.TransactOpts, _wethAmountToFirstMarket *big.Int, _ethAmountToCoinbase *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
-	return _Flashbundle.contract.Transact(opts, "uniswapWeth", _wethAmountToFirstMarket, _ethAmountToCoinbase, _targets, _payloads)
+// Solidity: function uniswapLoss(uint256 _wethAmountToFirstMarket, address[] _targets, bytes[] _payloads) payable returns()
+func (_Flashbundle *FlashbundleTransactor) UniswapLoss(opts *bind.TransactOpts, _wethAmountToFirstMarket *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
+	return _Flashbundle.contract.Transact(opts, "uniswapLoss", _wethAmountToFirstMarket, _targets, _payloads)
 }
 
-// UniswapWeth is a paid mutator transaction binding the contract method 0xecd494b3.
+// UniswapLoss is a paid mutator transaction binding the contract method 0x0b86ebe2.
 //
-// Solidity: function uniswapWeth(uint256 _wethAmountToFirstMarket, uint256 _ethAmountToCoinbase, address[] _targets, bytes[] _payloads) payable returns()
-func (_Flashbundle *FlashbundleSession) UniswapWeth(_wethAmountToFirstMarket *big.Int, _ethAmountToCoinbase *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
-	return _Flashbundle.Contract.UniswapWeth(&_Flashbundle.TransactOpts, _wethAmountToFirstMarket, _ethAmountToCoinbase, _targets, _payloads)
+// Solidity: function uniswapLoss(uint256 _wethAmountToFirstMarket, address[] _targets, bytes[] _payloads) payable returns()
+func (_Flashbundle *FlashbundleSession) UniswapLoss(_wethAmountToFirstMarket *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
+	return _Flashbundle.Contract.UniswapLoss(&_Flashbundle.TransactOpts, _wethAmountToFirstMarket, _targets, _payloads)
 }
 
-// UniswapWeth is a paid mutator transaction binding the contract method 0xecd494b3.
+// UniswapLoss is a paid mutator transaction binding the contract method 0x0b86ebe2.
 //
-// Solidity: function uniswapWeth(uint256 _wethAmountToFirstMarket, uint256 _ethAmountToCoinbase, address[] _targets, bytes[] _payloads) payable returns()
-func (_Flashbundle *FlashbundleTransactorSession) UniswapWeth(_wethAmountToFirstMarket *big.Int, _ethAmountToCoinbase *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
-	return _Flashbundle.Contract.UniswapWeth(&_Flashbundle.TransactOpts, _wethAmountToFirstMarket, _ethAmountToCoinbase, _targets, _payloads)
+// Solidity: function uniswapLoss(uint256 _wethAmountToFirstMarket, address[] _targets, bytes[] _payloads) payable returns()
+func (_Flashbundle *FlashbundleTransactorSession) UniswapLoss(_wethAmountToFirstMarket *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
+	return _Flashbundle.Contract.UniswapLoss(&_Flashbundle.TransactOpts, _wethAmountToFirstMarket, _targets, _payloads)
+}
+
+// UniswapWeth is a paid mutator transaction binding the contract method 0x8e7ee007.
+//
+// Solidity: function uniswapWeth(uint256 _wethAmountToFirstMarket, address[] _targets, bytes[] _payloads) payable returns()
+func (_Flashbundle *FlashbundleTransactor) UniswapWeth(opts *bind.TransactOpts, _wethAmountToFirstMarket *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
+	return _Flashbundle.contract.Transact(opts, "uniswapWeth", _wethAmountToFirstMarket, _targets, _payloads)
+}
+
+// UniswapWeth is a paid mutator transaction binding the contract method 0x8e7ee007.
+//
+// Solidity: function uniswapWeth(uint256 _wethAmountToFirstMarket, address[] _targets, bytes[] _payloads) payable returns()
+func (_Flashbundle *FlashbundleSession) UniswapWeth(_wethAmountToFirstMarket *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
+	return _Flashbundle.Contract.UniswapWeth(&_Flashbundle.TransactOpts, _wethAmountToFirstMarket, _targets, _payloads)
+}
+
+// UniswapWeth is a paid mutator transaction binding the contract method 0x8e7ee007.
+//
+// Solidity: function uniswapWeth(uint256 _wethAmountToFirstMarket, address[] _targets, bytes[] _payloads) payable returns()
+func (_Flashbundle *FlashbundleTransactorSession) UniswapWeth(_wethAmountToFirstMarket *big.Int, _targets []common.Address, _payloads [][]byte) (*types.Transaction, error) {
+	return _Flashbundle.Contract.UniswapWeth(&_Flashbundle.TransactOpts, _wethAmountToFirstMarket, _targets, _payloads)
 }
 
 // Receive is a paid mutator transaction binding the contract receive function.
