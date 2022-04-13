@@ -13,15 +13,19 @@ import (
 var WAVAX = common.HexToAddress("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7")
 
 type Market struct {
-	liqBalances map[common.Address]*Pair // All WAVAX Pairs
-	balanceMu   sync.Mutex
-	pairs       []*Pair
+	liqBalances   map[common.Address]*Pair // All WAVAX Pairs
+	balanceMu     sync.Mutex
+	pairs         []*Pair
+	name          string
+	marketAddress common.Address
 }
 
-func NewMarket(pairs []*Pair, client *ethclient.Client) (*Market, error) {
+func NewMarket(name string, marketAddress common.Address, pairs []*Pair, client *ethclient.Client) (*Market, error) {
 	tj := &Market{
-		liqBalances: make(map[common.Address]*Pair),
-		pairs:       pairs,
+		name:          name,
+		marketAddress: marketAddress,
+		liqBalances:   make(map[common.Address]*Pair),
+		pairs:         pairs,
 	}
 
 	for _, p := range pairs {
@@ -32,6 +36,14 @@ func NewMarket(pairs []*Pair, client *ethclient.Client) (*Market, error) {
 	}
 
 	return tj, nil
+}
+
+func (tj *Market) Name() string {
+	return tj.name
+}
+
+func (tj *Market) Address() common.Address {
+	return tj.marketAddress
 }
 
 func (tj *Market) UpdateReserves(bundleExecutor *flashbundle.Flashbundle) error {
@@ -98,8 +110,9 @@ func (tj *Market) getAmountIn(reserveIn, reserveOut, amountOut *big.Int) *big.In
 	denominator = denominator.Mul(denominator, big.NewInt(997))
 
 	amountIn := numerator.Div(numerator, denominator)
+	amountIn = amountIn.Add(amountIn, big.NewInt(1))
 
-	return amountIn.Add(amountIn, big.NewInt(1))
+	return amountIn
 }
 
 func (tj *Market) getAmountOut(reserveIn, reserveOut, amountIn *big.Int) *big.Int {

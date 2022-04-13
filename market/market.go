@@ -12,6 +12,12 @@ import (
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
+type PricedMarket struct {
+	Market    *Market
+	BuyPrice  *big.Int
+	SellPrice *big.Int
+}
+
 type CrossedMarket struct {
 	Token common.Address // non WAVAX of the pair
 
@@ -26,6 +32,12 @@ func (cm *CrossedMarket) TradeProfit(estGasFee *big.Int) *big.Int {
 	profit := big.NewInt(0).Sub(cm.SellPrice, cm.BuyPrice)
 
 	return profit.Sub(profit, estGasFee)
+}
+
+func (cm *CrossedMarket) Profit() *big.Int {
+	profit := big.NewInt(0).Sub(cm.SellPrice, cm.BuyPrice)
+
+	return profit
 }
 
 func (cm *CrossedMarket) BuyCallData(amountIn *big.Int) (common.Address, []byte, *big.Int, error) {
@@ -77,18 +89,18 @@ func (cm *CrossedMarket) SellCallData(amountIn *big.Int, recipient common.Addres
 
 	if tokenOut == pair.Token0 {
 		tokenIn = pair.Token1
-		amount0Out = cm.BuyMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		amount0Out = cm.SellMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
 
-		amount0Out.Div(amount0Out, big.NewInt(100))
-		amount0Out.Mul(amount0Out, big.NewInt(99)) // expect 98%
+		// amount0Out.Div(amount0Out, big.NewInt(100))
+		// amount0Out.Mul(amount0Out, big.NewInt(100)) // expect 98%
 
 		outputAmount = amount0Out
 	} else if tokenOut == pair.Token1 {
 		tokenIn = pair.Token0
-		amount1Out = cm.BuyMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		amount1Out = cm.SellMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
 
-		amount1Out.Div(amount1Out, big.NewInt(100))
-		amount1Out.Mul(amount1Out, big.NewInt(99)) // expect 98%
+		// amount1Out.Div(amount1Out, big.NewInt(100))
+		// amount1Out.Mul(amount1Out, big.NewInt(100)) // expect 98%
 
 		outputAmount = amount1Out
 	}
