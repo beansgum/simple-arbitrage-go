@@ -48,16 +48,24 @@ func (cm *CrossedMarket) BuyCallData(amountIn *big.Int) (common.Address, []byte,
 
 	var tokenIn common.Address
 	tokenOut := cm.Token
-	pair := cm.BuyMarket.liqBalances[cm.Token]
-	sellPair := cm.SellMarket.liqBalances[cm.Token]
+	pair := cm.BuyMarket.FindPair(cm.Token, WAVAX)
+	sellPair := cm.SellMarket.FindPair(cm.Token, WAVAX)
 
 	if tokenOut == pair.Token0 {
 		tokenIn = pair.Token1
-		amount0Out = cm.BuyMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		amount0Out, err := cm.BuyMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		if err != nil {
+			return pair.Address, nil, nil, err
+		}
+
 		outputAmount = amount0Out
 	} else if tokenOut == pair.Token1 {
 		tokenIn = pair.Token0
-		amount1Out = cm.BuyMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		amount1Out, err := cm.BuyMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		if err != nil {
+			return pair.Address, nil, nil, err
+		}
+
 		outputAmount = amount1Out
 	}
 
@@ -85,11 +93,14 @@ func (cm *CrossedMarket) SellCallData(amountIn *big.Int, recipient common.Addres
 
 	var tokenIn common.Address
 	tokenOut := WAVAX
-	pair := cm.SellMarket.liqBalances[cm.Token]
+	pair := cm.SellMarket.FindPair(cm.Token, tokenOut)
 
 	if tokenOut == pair.Token0 {
 		tokenIn = pair.Token1
-		amount0Out = cm.SellMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		amount0Out, err := cm.SellMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		if err != nil {
+			return pair.Address, nil, nil, err
+		}
 
 		// amount0Out.Div(amount0Out, big.NewInt(100))
 		// amount0Out.Mul(amount0Out, big.NewInt(100)) // expect 98%
@@ -97,7 +108,10 @@ func (cm *CrossedMarket) SellCallData(amountIn *big.Int, recipient common.Addres
 		outputAmount = amount0Out
 	} else if tokenOut == pair.Token1 {
 		tokenIn = pair.Token0
-		amount1Out = cm.SellMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		amount1Out, err := cm.SellMarket.GetTokensOut(tokenIn, tokenOut, amountIn)
+		if err != nil {
+			return pair.Address, nil, nil, err
+		}
 
 		// amount1Out.Div(amount1Out, big.NewInt(100))
 		// amount1Out.Mul(amount1Out, big.NewInt(100)) // expect 98%
@@ -125,11 +139,11 @@ type Pair struct {
 	Token0  common.Address
 	Token1  common.Address
 
-	tokenBalances map[common.Address]*big.Int
+	TokenBalances map[common.Address]*big.Int
 }
 
 func NewPair(address common.Address) *Pair {
-	return &Pair{Address: address, tokenBalances: make(map[common.Address]*big.Int)}
+	return &Pair{Address: address, TokenBalances: make(map[common.Address]*big.Int)}
 }
 
 func (p *Pair) UpdateAddresses(client *ethclient.Client) error {

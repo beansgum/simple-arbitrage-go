@@ -30,7 +30,7 @@ var (
 
 // FlashbundleMetaData contains all meta data concerning the Flashbundle contract.
 var FlashbundleMetaData = &bind.MetaData{
-	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_executor\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"addresspayable\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"call\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractUniswapV2Factory\",\"name\":\"_uniswapFactory\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_stop\",\"type\":\"uint256\"}],\"name\":\"getPairsByIndexRange\",\"outputs\":[{\"internalType\":\"address[3][]\",\"name\":\"\",\"type\":\"address[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIUniswapV2Pair[]\",\"name\":\"_pairs\",\"type\":\"address[]\"}],\"name\":\"getReservesByPairs\",\"outputs\":[{\"internalType\":\"uint256[3][]\",\"name\":\"\",\"type\":\"uint256[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_wethAmountToFirstMarket\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"_targets\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"_payloads\",\"type\":\"bytes[]\"}],\"name\":\"uniswapLoss\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_wethAmountToFirstMarket\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"_targets\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"_payloads\",\"type\":\"bytes[]\"}],\"name\":\"uniswapWeth\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
+	ABI: "[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_executor\",\"type\":\"address\"}],\"stateMutability\":\"payable\",\"type\":\"constructor\"},{\"inputs\":[{\"internalType\":\"addresspayable\",\"name\":\"_to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_value\",\"type\":\"uint256\"},{\"internalType\":\"bytes\",\"name\":\"_data\",\"type\":\"bytes\"}],\"name\":\"call\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"pairAddresses\",\"type\":\"address[]\"}],\"name\":\"findPairTokens\",\"outputs\":[{\"internalType\":\"address[][]\",\"name\":\"\",\"type\":\"address[][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractUniswapV2Factory\",\"name\":\"_uniswapFactory\",\"type\":\"address\"},{\"internalType\":\"address[][]\",\"name\":\"pairs\",\"type\":\"address[][]\"}],\"name\":\"findPairs\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractUniswapV2Factory\",\"name\":\"_uniswapFactory\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"_start\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"_stop\",\"type\":\"uint256\"}],\"name\":\"getPairsByIndexRange\",\"outputs\":[{\"internalType\":\"address[3][]\",\"name\":\"\",\"type\":\"address[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contractIUniswapV2Pair[]\",\"name\":\"_pairs\",\"type\":\"address[]\"}],\"name\":\"getReservesByPairs\",\"outputs\":[{\"internalType\":\"uint256[3][]\",\"name\":\"\",\"type\":\"uint256[3][]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_wethAmountToFirstMarket\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"_targets\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"_payloads\",\"type\":\"bytes[]\"}],\"name\":\"uniswapLoss\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"_wethAmountToFirstMarket\",\"type\":\"uint256\"},{\"internalType\":\"address[]\",\"name\":\"_targets\",\"type\":\"address[]\"},{\"internalType\":\"bytes[]\",\"name\":\"_payloads\",\"type\":\"bytes[]\"}],\"name\":\"uniswapWeth\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}]",
 }
 
 // FlashbundleABI is the input ABI used to generate the binding from.
@@ -177,6 +177,68 @@ func (_Flashbundle *FlashbundleTransactorRaw) Transfer(opts *bind.TransactOpts) 
 // Transact invokes the (paid) contract method with params as input values.
 func (_Flashbundle *FlashbundleTransactorRaw) Transact(opts *bind.TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
 	return _Flashbundle.Contract.contract.Transact(opts, method, params...)
+}
+
+// FindPairTokens is a free data retrieval call binding the contract method 0x4fcaf4ac.
+//
+// Solidity: function findPairTokens(address[] pairAddresses) view returns(address[][])
+func (_Flashbundle *FlashbundleCaller) FindPairTokens(opts *bind.CallOpts, pairAddresses []common.Address) ([][]common.Address, error) {
+	var out []interface{}
+	err := _Flashbundle.contract.Call(opts, &out, "findPairTokens", pairAddresses)
+
+	if err != nil {
+		return *new([][]common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([][]common.Address)).(*[][]common.Address)
+
+	return out0, err
+
+}
+
+// FindPairTokens is a free data retrieval call binding the contract method 0x4fcaf4ac.
+//
+// Solidity: function findPairTokens(address[] pairAddresses) view returns(address[][])
+func (_Flashbundle *FlashbundleSession) FindPairTokens(pairAddresses []common.Address) ([][]common.Address, error) {
+	return _Flashbundle.Contract.FindPairTokens(&_Flashbundle.CallOpts, pairAddresses)
+}
+
+// FindPairTokens is a free data retrieval call binding the contract method 0x4fcaf4ac.
+//
+// Solidity: function findPairTokens(address[] pairAddresses) view returns(address[][])
+func (_Flashbundle *FlashbundleCallerSession) FindPairTokens(pairAddresses []common.Address) ([][]common.Address, error) {
+	return _Flashbundle.Contract.FindPairTokens(&_Flashbundle.CallOpts, pairAddresses)
+}
+
+// FindPairs is a free data retrieval call binding the contract method 0xdac11388.
+//
+// Solidity: function findPairs(address _uniswapFactory, address[][] pairs) view returns(address[])
+func (_Flashbundle *FlashbundleCaller) FindPairs(opts *bind.CallOpts, _uniswapFactory common.Address, pairs [][]common.Address) ([]common.Address, error) {
+	var out []interface{}
+	err := _Flashbundle.contract.Call(opts, &out, "findPairs", _uniswapFactory, pairs)
+
+	if err != nil {
+		return *new([]common.Address), err
+	}
+
+	out0 := *abi.ConvertType(out[0], new([]common.Address)).(*[]common.Address)
+
+	return out0, err
+
+}
+
+// FindPairs is a free data retrieval call binding the contract method 0xdac11388.
+//
+// Solidity: function findPairs(address _uniswapFactory, address[][] pairs) view returns(address[])
+func (_Flashbundle *FlashbundleSession) FindPairs(_uniswapFactory common.Address, pairs [][]common.Address) ([]common.Address, error) {
+	return _Flashbundle.Contract.FindPairs(&_Flashbundle.CallOpts, _uniswapFactory, pairs)
+}
+
+// FindPairs is a free data retrieval call binding the contract method 0xdac11388.
+//
+// Solidity: function findPairs(address _uniswapFactory, address[][] pairs) view returns(address[])
+func (_Flashbundle *FlashbundleCallerSession) FindPairs(_uniswapFactory common.Address, pairs [][]common.Address) ([]common.Address, error) {
+	return _Flashbundle.Contract.FindPairs(&_Flashbundle.CallOpts, _uniswapFactory, pairs)
 }
 
 // GetPairsByIndexRange is a free data retrieval call binding the contract method 0xab2217e4.

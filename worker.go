@@ -35,7 +35,8 @@ func (arb *arbBot) blockNotifications() error {
 
 				// fmt.Println("Updated reserves")
 
-				arb.evaluateMarkets()
+				// arb.cma.EvaluateMarkets(arb.markets, arb.tokens)
+				arb.cta.EvaluateMarkets(arb.markets, arb.tokens)
 
 				// fmt.Println("Evaluated markets")
 			}
