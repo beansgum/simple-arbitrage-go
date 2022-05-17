@@ -11,6 +11,10 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
+// used a really low value in order to test properly, most arbs found using this min profit won't be profitable after gas.
+var MinProfit = helpers.ToWei(0.000000002)
+var MaxBuyPrice = helpers.ToWei(23.02) // this should really be your WAVAX balance
+
 type FlashBot interface {
 	UniswapWeth(_wethAmountToFirstMarket *big.Int, targets []common.Address, payloads [][]byte) (*types.Transaction, error)
 }
@@ -24,10 +28,12 @@ func NewCrossMarketArbitrage(flashBot FlashBot) *CrossedMarketArbitrage {
 }
 
 func (cma *CrossedMarketArbitrage) EvaluateMarkets(markets []*market.Market, tokens []common.Address) {
+
+	// Find the prices of buying and selling tokens in markets.
 	pricedMarkets := make(map[common.Address][]*market.PricedMarket)
 	for _, token := range tokens {
 		for _, m := range markets {
-			buyPrice, err := m.GetTokensIn(token, helpers.WAVAX, helpers.ToWei(0.01)) // get amount of avax 0.01token can get
+			buyPrice, err := m.GetTokensIn(token, helpers.WAVAX, helpers.ToWei(0.01)) // get amount of avax 0.01 token can get
 			if err != nil {
 				fmt.Println("buy token not found in market")
 				continue
@@ -49,6 +55,7 @@ func (cma *CrossedMarketArbitrage) EvaluateMarkets(markets []*market.Market, tok
 		}
 	}
 
+	// Find tokens that can be bought in one market and sold in another for less.
 	crossedMarkets := make([]*market.CrossedMarket, 0)
 	for token, tokenMarkets := range pricedMarkets {
 		for _, m1 := range tokenMarkets {
@@ -57,13 +64,13 @@ func (cma *CrossedMarketArbitrage) EvaluateMarkets(markets []*market.Market, tok
 					continue
 				}
 
-				if big.NewInt(0).Sub(m2.SellPrice, m1.BuyPrice).Cmp(helpers.ToWei(0.000000002)) == 1 {
+				if big.NewInt(0).Sub(m2.SellPrice, m1.BuyPrice).Cmp(MinProfit) == 1 {
 					fmt.Printf("Token %s m2(%s) buy %s m1(%s) sell %s, profit: %v \n", token, m2.Market.Name(),
 						helpers.ToDecimal(m1.BuyPrice), m1.Market.Name(), helpers.ToDecimal(m2.SellPrice), helpers.ToDecimal(big.NewInt(0).Sub(m2.SellPrice, m1.BuyPrice)))
 
 					cm := &market.CrossedMarket{
 						Token:      token,
-						BuyMarket:  m2.Market, // DO NOT TOUCH
+						BuyMarket:  m2.Market,
 						SellMarket: m1.Market,
 
 						BuyPrice:  m1.BuyPrice,
@@ -78,15 +85,17 @@ func (cma *CrossedMarketArbitrage) EvaluateMarkets(markets []*market.Market, tok
 
 	fmt.Printf("Found %d crossed markets\n", len(crossedMarkets))
 
+	// get the most profitable cross market arb
 	crossedMarket, err := cma.getBestCrossedMarket(crossedMarkets)
 	if err != nil {
 		fmt.Println("error getting best crossed market:", err)
 		return
 	} else if crossedMarket == nil {
+		fmt.Println("No best crossed market")
 		return
 	}
 
-	if crossedMarket.BuyPrice.Cmp(helpers.ToWei(23.02)) >= 0 {
+	if crossedMarket.BuyPrice.Cmp(MaxBuyPrice) >= 0 {
 		fmt.Printf("Rejecting %s, buy price high: %s\n", crossedMarket.Token, helpers.ToDecimal(crossedMarket.BuyPrice))
 		return
 	}
@@ -119,7 +128,6 @@ func (cma *CrossedMarketArbitrage) EvaluateMarkets(markets []*market.Market, tok
 
 	fmt.Println(tx.Hash())
 	time.Sleep(10000) // wait for block
-	// os.Exit(1)
 }
 
 func (cma *CrossedMarketArbitrage) getBestCrossedMarket(crossedMarkets []*market.CrossedMarket) (*market.CrossedMarket, error) {
@@ -127,7 +135,7 @@ func (cma *CrossedMarketArbitrage) getBestCrossedMarket(crossedMarkets []*market
 	var bestCrossedMarket *market.CrossedMarket
 
 	for _, crossedMarket := range crossedMarkets {
-		testVolumes := []*big.Int{crossedMarket.BuyPrice, helpers.ToWei(0.01), helpers.ToWei(0.1), helpers.ToWei(0.16),
+		testVolumes := []*big.Int{helpers.ToWei(0.01), helpers.ToWei(0.1), helpers.ToWei(0.16),
 			helpers.ToWei(0.25), helpers.ToWei(0.5), helpers.ToWei(1.0), helpers.ToWei(2.0), helpers.ToWei(5.0), helpers.ToWei(10.0), helpers.ToWei(12.0), helpers.ToWei(20.0)}
 		buyMarket := crossedMarket.BuyMarket
 		sellMarket := crossedMarket.SellMarket
@@ -144,8 +152,6 @@ func (cma *CrossedMarketArbitrage) getBestCrossedMarket(crossedMarkets []*market
 			}
 
 			profit := big.NewInt(0).Sub(proceedsFromSellTokens, testVolume)
-			// fmt.Printf("Vol: %s Expected buy: %s, Expected output: %s\n", ToDecimal(testVolume), ToDecimal(expectedBuyTokens), ToDecimal(proceedsFromSellTokens))
-			// fmt.Printf("%s buy %s from %s and sell %s in %s for %s profit\n", crossedMarket.Token, ToDecimal(testVolume), buyMarket.Name(), ToDecimal(proceedsFromSellTokens), sellMarket.Name(), ToDecimal(profit))
 			if (bestCrossedMarket == nil || bestCrossedMarket.Profit().Cmp(profit) == -1) && profit.Cmp(helpers.ToWei(0.015)) == 1 {
 				fmt.Printf("Found new best %s buy %s sell %s profit %s\n", crossedMarket.Token, helpers.ToDecimal(testVolume), helpers.ToDecimal(proceedsFromSellTokens), helpers.ToDecimal(profit))
 

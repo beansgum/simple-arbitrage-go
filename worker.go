@@ -21,11 +21,7 @@ func (arb *arbBot) blockNotifications() error {
 			case err := <-sub.Err():
 				fmt.Println(err)
 			case <-headers:
-				// block, err := arb.ethClient.BlockByHash(context.Background(), header.Hash())
-				// if err != nil {
-				// 	fmt.Println(err)
-				// }
-
+				// Update all marjets reserves.
 				for _, market := range arb.markets {
 					err := market.UpdateReserves(arb.bundleExecutor)
 					if err != nil {
@@ -35,8 +31,8 @@ func (arb *arbBot) blockNotifications() error {
 
 				// fmt.Println("Updated reserves")
 
-				// arb.cma.EvaluateMarkets(arb.markets, arb.tokens)
-				arb.cta.EvaluateMarkets(arb.markets, arb.tokens)
+				// Find arb opportunites
+				arb.cma.EvaluateMarkets(arb.markets, arb.tokens)
 
 				// fmt.Println("Evaluated markets")
 			}

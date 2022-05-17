@@ -9,7 +9,7 @@ import (
 
 var (
 	WAVAX         = common.HexToAddress("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7")
-	BundleAddress = common.HexToAddress("0x679232E1Dbb868aed553Bd333a95eeb35CC9B15E")
+	BundleAddress = common.HexToAddress("0x0")
 )
 
 func ToDecimal(ivalue interface{}) decimal.Decimal {

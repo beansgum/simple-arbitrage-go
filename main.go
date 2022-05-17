@@ -24,9 +24,10 @@ var (
 	TraderJoeRouter  = common.HexToAddress("0x60aE616a2155Ee3d9A68541Ba4544862310933d4")
 	PangolinRouter   = common.HexToAddress("0xE54Ca86531e17Ef3616d22Ca28b0D458b6C89106")
 
-	WAVAX         = common.HexToAddress("0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7")
+	WAVAX         = helpers.WAVAX
 	BundleAddress = helpers.BundleAddress
-	PrivateKey, _ = crypto.HexToECDSA(os.Getenv("MEV_PRIVATE"))
+	ZeroAddress   = common.HexToAddress("0x0000000000000000000000000000000000000000")
+	PrivateKey, _ = crypto.HexToECDSA(os.Getenv("MEV_PRIVATE")) // Mev wallet private key
 )
 
 func main() {
@@ -35,6 +36,7 @@ func main() {
 		fmt.Println(err)
 		return
 	}
+
 	arb.beginArbitrage()
 	select {}
 
@@ -49,7 +51,6 @@ type arbBot struct {
 	tokens  []common.Address
 
 	cma *strategy.CrossedMarketArbitrage
-	cta *strategy.CrossTokenArbitrage
 }
 
 func newArbBot() (*arbBot, error) {
@@ -72,7 +73,6 @@ func newArbBot() (*arbBot, error) {
 		markets:        make([]*market.Market, 0),
 	}
 
-	arbbot.cta = strategy.NewCrossTokenArbitrage(arbbot)
 	arbbot.cma = strategy.NewCrossMarketArbitrage(arbbot)
 
 	return arbbot, nil
@@ -113,37 +113,12 @@ func (arb *arbBot) beginArbitrage() {
 		common.HexToAddress("0x4f60a160d8c2dddaafe16fcc57566db84d674bd6"), // JEWEL
 		common.HexToAddress("0xce1bffbd5374dac86a2893119683f4911a2f7814"), // SPELL
 		common.HexToAddress("0xf693248f96fe03422fea95ac0afbbbc4a8fdd172"), // TUS
-		common.HexToAddress("0x264c1383ea520f73dd837f915ef3a732e204a493"), // BNB
-		common.HexToAddress("0x7f041ce89a2079873693207653b24c15b5e6a293"), // LOOT
-		common.HexToAddress("0x22d4002028f537599be9f666d1c4fa138522f9c8"), // PTP
-		common.HexToAddress("0xb54f16fb19478766a268f172c9480f8da1a7c9c3"), // TIME
-		common.HexToAddress("0x321e7092a180bb43555132ec53aaa65a5bf84251"), // gOHM
-		common.HexToAddress("0x397bbd6a0e41bdf4c3f971731e180db8ad06ebc1"), // AVTX
-		common.HexToAddress("0xb27c8941a7df8958a1778c0259f76d1f8b711c35"), // KLO
-		common.HexToAddress("0xec3492a2508ddf4fdc0cd76f31f340b30d1793e6"), // CLY
-		common.HexToAddress("0x65378b697853568da9ff8eab60c13e1ee9f4a654"), // HUSKY
-		common.HexToAddress("0x490bf3abcab1fb5c88533d850f2a8d6d38298465"), // PLAYMATES
-		common.HexToAddress("0x340fe1d898eccaad394e2ba0fc1f93d27c7b717a"), // ORBS
-		common.HexToAddress("0x63a72806098Bd3D9520cC43356dD78afe5D386D9"), // AAVE.e
-		common.HexToAddress("0x5817d4f0b62a59b17f75207da1848c2ce75e7af4"), // VTX
-
-		common.HexToAddress("0x2f6f07cdcf3588944bf4c42ac74ff24bf56e7590"), // STG
-		common.HexToAddress("0xf5ee578505f4d876fef288dfd9fd5e15e9ea1318"), // VOLT
-		common.HexToAddress("0xea068fba19ce95f12d252ad8cb2939225c4ea02d"), // FIEF
-		common.HexToAddress("0xeb8343d5284caec921f035207ca94db6baaacbcd"), // ECD
-		common.HexToAddress("0xfb98b335551a418cd0737375a2ea0ded62ea213b"), // PENDLE
-		common.HexToAddress("0x6d923f688c7ff287dc3a5943caeefc994f97b290"), // SMRT
-		common.HexToAddress("0xf9a49321d3d34cf94c4abd1957c219572a646692"), // FAVAX
-		common.HexToAddress("0x7c08413cbf02202a1c13643db173f2694e0f73f0"), // MAXI
-		common.HexToAddress("0x83a283641c6b4df383bcddf807193284c84c5342"), // VPND
-		common.HexToAddress("0x70928e5b188def72817b7775f0bf6325968e563b"), // LUNA WORMHOLE
-		common.HexToAddress("0x7761e2338b35bceb6bda6ce477ef012bde7ae611"), // EGG
-		common.HexToAddress("0x9f285507ea5b4f33822ca7abb5ec8953ce37a645"), // DEG
 	}
 
 	arb.tokens = tokens
 
 	fmt.Println("Loading pairs")
+	// Find available pairs for all token combinations
 	tokenPairs := make([][]common.Address, 0)
 	for i, token := range tokens {
 		wavaxPair := []common.Address{WAVAX, token}
@@ -167,8 +142,6 @@ func (arb *arbBot) beginArbitrage() {
 		return
 	}
 
-	zeroAddress := common.HexToAddress("0x0000000000000000000000000000000000000000")
-
 	joePairs := make([]*market.Pair, 0)
 	pngPairs := make([]*market.Pair, 0)
 	for i := 0; i < len(tokenPairs); i++ {
@@ -176,16 +149,16 @@ func (arb *arbBot) beginArbitrage() {
 		joePair := joePairAddress[i]
 		pngPair := pngPairAddresses[i]
 
-		if joePair != zeroAddress {
+		if joePair != ZeroAddress {
 			joePairs = append(joePairs, market.NewPair(joePair))
 		}
 
-		if pngPair != zeroAddress {
+		if pngPair != ZeroAddress {
 			pngPairs = append(pngPairs, market.NewPair(pngPair))
 		}
 	}
 
-	fmt.Println("Setting up market")
+	fmt.Println("Setting up markets")
 	tj, err := market.NewMarket("JOE", TraderJoeRouter, joePairs, arb)
 	if err != nil {
 		fmt.Println(err)
