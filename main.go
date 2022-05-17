@@ -28,6 +28,7 @@ var (
 	BundleAddress = helpers.BundleAddress
 	ZeroAddress   = common.HexToAddress("0x0000000000000000000000000000000000000000")
 	PrivateKey, _ = crypto.HexToECDSA(os.Getenv("MEV_PRIVATE")) // Mev wallet private key
+	RPC           = os.Getenv("AVAX_WS_URL")
 )
 
 func main() {
@@ -56,7 +57,7 @@ type arbBot struct {
 func newArbBot() (*arbBot, error) {
 
 	fmt.Println("Starting Up")
-	client, err := ethclient.Dial("wss://speedy-nodes-nyc.moralis.io//avalanche/mainnet/ws")
+	client, err := ethclient.Dial(RPC)
 	if err != nil {
 		return nil, err
 	}
